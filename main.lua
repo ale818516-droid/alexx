@@ -66,3 +66,90 @@ local Window = WindUI:CreateWindow({
         Draggable = true,
     }
 })
+
+-- TABS (Nativo de WindUI)
+local VisualsTab = Window:Tab({
+    Title = "Visuals",
+    Icon = "eye"
+})
+
+-- VARIABLES
+local ESP_Enabled = false
+local espColor = Color3.fromRGB(255, 0, 0)
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local player = Players.LocalPlayer
+
+-- FUNCIÓN DE TEAM CHECK PERSONALIZADA
+local function isEnemy(target)
+    if target == player then return false end
+    local myTeam = player:GetAttribute("Team") or player.Team
+    local targetTeam = target:GetAttribute("Team") or target.Team
+    return myTeam ~= targetTeam
+end
+
+-- FUNCIÓN DEL ESP
+local function UpdateESP()
+    for _, target in pairs(Players:GetPlayers()) do
+        local character = target.Character
+        
+        if character and character:FindFirstChild("HumanoidRootPart") and character:FindFirstChild("Humanoid") and character.Humanoid.Health > 0 then
+            
+            local highlight = character:FindFirstChild("ESPHighlight")
+
+            if ESP_Enabled and isEnemy(target) then
+                if not highlight then
+                    highlight = Instance.new("Highlight")
+                    highlight.Name = "ESPHighlight"
+                    highlight.Parent = character
+                    
+                    highlight.FillTransparency = 1
+                    highlight.OutlineTransparency = 0
+                    highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                end
+                highlight.OutlineColor = espColor
+            else
+                if highlight then
+                    highlight:Destroy()
+                end
+            end
+        end
+    end
+end
+
+RunService.RenderStepped:Connect(function()
+    UpdateESP()
+end)
+
+-- COMPONENTES UI (Sintaxis 100% de WindUI)
+VisualsTab:Toggle({
+    Title = "Enemy ESP (Outline)",
+    Desc = "Muestra el contorno de los enemigos a través de las paredes.",
+    Default = false,
+    Callback = function(state)
+        ESP_Enabled = state
+    end
+})
+
+
+VisualsTab:Colorpicker({
+    Title = "Color del ESP",
+    Desc = "Selecciona el color del contorno.",
+    Default = Color3.fromRGB(255, 0, 0),
+    Transparency = 0,
+    Size = UDim2.fromOffset(300, 70),
+
+    Callback = function(color)
+        espColor = color
+
+        for _, target in ipairs(Players:GetPlayers()) do
+            local character = target.Character
+            if character then
+                local highlight = character:FindFirstChild("ESPHighlight")
+                if highlight then
+                    highlight.OutlineColor = color
+                end
+            end
+        end
+    end
+})
