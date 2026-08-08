@@ -1,5 +1,4 @@
-local versao = "1.6.65"
-local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/download/" .. versao .. "/main.lua"))()
+local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
 
 -- TEMAS
 WindUI:AddTheme({
@@ -134,22 +133,9 @@ VisualsTab:Toggle({
 
 VisualsTab:Colorpicker({
     Title = "Color del ESP",
-    Desc = "Selecciona el color del contorno.",
     Default = Color3.fromRGB(255, 0, 0),
-    Transparency = 0,
-    Size = UDim2.fromOffset(300, 70),
 
     Callback = function(color)
         espColor = color
-
-        for _, target in ipairs(Players:GetPlayers()) do
-            local character = target.Character
-            if character then
-                local highlight = character:FindFirstChild("ESPHighlight")
-                if highlight then
-                    highlight.OutlineColor = color
-                end
-            end
-        end
     end
 })
